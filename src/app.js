@@ -32,10 +32,17 @@ ref.on('value', function (snapshot) {
 })
 
 // HTTP Endpoints
+// 1. get users
 app.get('/get-users', (req, res) => {
   res.send({
     users: users
   })
+})
+
+// 2. add user
+app.post('/add-user', (req, res) => {
+  console.log('username: ' + req.body.username)
+  res.send('added user')
 })
 
 app.listen(process.env.PORT || 8081)
