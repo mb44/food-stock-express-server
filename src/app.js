@@ -68,6 +68,12 @@ app.post('/update-user-privileges/:uid', (req, res) => {
   var currentUserRef = usersRef.child(req.params.uid)
   currentUserRef.update({
     'privileges': req.body.privileges
+  }, function (error) {
+    if (error) {
+      res.send('User privileges not updated: ' + error)
+    } else {
+      res.send('User privileges successfully updated')
+    }
   })
 })
 
