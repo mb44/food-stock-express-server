@@ -63,7 +63,7 @@ app.post('/users', (req, res) => {
 })
 
 // 3. update user privileges
-app.post('/users/:uid', (req, res) => {
+app.put('/users/:uid', (req, res) => {
   var currentUserRef = usersRef.child(req.params.uid)
   currentUserRef.update({
     'privileges': req.body.privileges
