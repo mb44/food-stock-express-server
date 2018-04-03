@@ -62,4 +62,13 @@ app.post('/add-user', (req, res) => {
     })
 })
 
+// 3. update user privileges
+app.post('/update-user-privileges/:uid', (req, res) => {
+  console.log(req.params.uid)
+  var currentUserRef = usersRef.child(req.params.uid)
+  currentUserRef.update({
+    'privileges': req.body.privileges
+  })
+})
+
 app.listen(process.env.PORT || 8081)
