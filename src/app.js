@@ -34,14 +34,14 @@ usersRef.on('value', function (snapshot) {
 
 // HTTP Endpoints
 // 1. get users
-app.get('/get-users', (req, res) => {
+app.get('/users', (req, res) => {
   res.send({
     users: users
   })
 })
 
 // 2. add user
-app.post('/add-user', (req, res) => {
+app.post('/users', (req, res) => {
   admin.auth().createUser({
     email: req.body.email,
     password: req.body.password
@@ -63,7 +63,7 @@ app.post('/add-user', (req, res) => {
 })
 
 // 3. update user privileges
-app.post('/update-user-privileges/:uid', (req, res) => {
+app.post('/users/:uid', (req, res) => {
   var currentUserRef = usersRef.child(req.params.uid)
   currentUserRef.update({
     'privileges': req.body.privileges
@@ -79,7 +79,7 @@ app.post('/update-user-privileges/:uid', (req, res) => {
 })
 
 // 4. delete user
-app.post('/delete-user/:uid', (req, res) => {
+app.delete('/users/:uid', (req, res) => {
   var currentUserRef = usersRef.child(req.params.uid)
 
   admin.auth().deleteUser(req.params.uid)
@@ -91,6 +91,7 @@ app.post('/delete-user/:uid', (req, res) => {
     })
     .catch(function (error) {
       console.log('Error deleting user:' + error)
+      res.send('Error deleting user:' + error)
     })
 })
 
