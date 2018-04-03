@@ -21,10 +21,11 @@ var users = null
 // Firebase
 // Get a database reference to our posts
 var db = admin.database()
-var ref = db.ref('users')
+
+var usersRef = db.ref('users')
 
 // Attach an asynchronous callback to read the data at our posts reference
-ref.on('value', function (snapshot) {
+usersRef.on('value', function (snapshot) {
   console.log(snapshot.val())
   users = snapshot.val()
 }, function (errorObject) {
@@ -41,8 +42,24 @@ app.get('/get-users', (req, res) => {
 
 // 2. add user
 app.post('/add-user', (req, res) => {
-  console.log('username: ' + req.body.username)
-  res.send('added user')
+  admin.auth().createUser({
+    email: req.body.email,
+    password: req.body.password
+  })
+    .then(function (userRecord) {
+      // Add user to database
+      usersRef.child(userRecord.uid).set({
+        email: req.body.email,
+        privileges: req.body.privileges
+      })
+
+      console.log('Successfully created new user:' + userRecord.uid)
+      res.send('added user with id: ' + userRecord.uid)
+    })
+    .catch(function (error) {
+      console.log('Error creating new user:' + error)
+      res.send('Error creating new user: ' + error)
+    })
 })
 
 app.listen(process.env.PORT || 8081)
