@@ -64,17 +64,34 @@ app.post('/add-user', (req, res) => {
 
 // 3. update user privileges
 app.post('/update-user-privileges/:uid', (req, res) => {
-  console.log(req.params.uid)
   var currentUserRef = usersRef.child(req.params.uid)
   currentUserRef.update({
     'privileges': req.body.privileges
   }, function (error) {
     if (error) {
+      console.log('User privileges not updated: ' + error)
       res.send('User privileges not updated: ' + error)
     } else {
+      console.log('User privileges successfully updated')
       res.send('User privileges successfully updated')
     }
   })
+})
+
+// 4. delete user
+app.post('/delete-user/:uid', (req, res) => {
+  var currentUserRef = usersRef.child(req.params.uid)
+
+  admin.auth().deleteUser(req.params.uid)
+    .then(function () {
+      currentUserRef.remove().then(function () {
+        console.log('uid: ' + req.params.uid + ' succcessfully deleted')
+        res.send('uid: ' + req.params.uid + ' succcessfully deleted')
+      })
+    })
+    .catch(function (error) {
+      console.log('Error deleting user:' + error)
+    })
 })
 
 app.listen(process.env.PORT || 8081)
