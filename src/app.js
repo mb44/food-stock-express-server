@@ -42,6 +42,10 @@ app.get('/users', (req, res) => {
 
 // 2. add user
 app.post('/users', (req, res) => {
+  console.log(req.body.email)
+
+  console.log(req.body.token)
+
   admin.auth().createUser({
     email: req.body.email,
     password: req.body.password
@@ -54,28 +58,50 @@ app.post('/users', (req, res) => {
       })
 
       console.log('Successfully created new user:' + userRecord.uid)
-      res.send('added user with id: ' + userRecord.uid)
+      res.status(200).send('Successfully adder new user')
     })
     .catch(function (error) {
       console.log('Error creating new user:' + error)
-      res.send('Error creating new user: ' + error)
+      res.status(500).send('Error creating new user')
     })
 })
 
-// 3. update user privileges
+// 3. update user (email and privileges)
 app.patch('/users/:uid', (req, res) => {
+  /*
+  console.log('ID TOKEN: ' + req.body.idToken)
+
+  admin.auth().verifyIdToken(req.body.idToken)
+    .then(function (decodedToken) {
+      var uid = decodedToken.uid
+      console.log('User id: ' + uid)
+    }).catch(function (error) {
+      res.status(500).send(error)
+    })
+  */
   var currentUserRef = usersRef.child(req.params.uid)
-  currentUserRef.update({
-    'privileges': req.body.privileges
-  }, function (error) {
-    if (error) {
-      console.log('User privileges not updated: ' + error)
-      res.send('User privileges not updated: ' + error)
-    } else {
-      console.log('User privileges successfully updated')
-      res.send('User privileges successfully updated')
-    }
+  admin.auth().updateUser(req.params.uid, {
+    email: req.body.email
   })
+    .then(function (userRecord) {
+      currentUserRef.update({
+        'email': req.body.email,
+        'privileges': req.body.privileges
+      }, function (error) {
+        if (error) {
+          console.log('User privileges not updated: ' + error)
+          res.status(500).send('User privileges not updated')
+        } else {
+          // See the UserRecord reference doc for the contents of userRecord.
+          console.log('Successfully updated user', userRecord.toJSON())
+          res.status(200).send('Successfully updated user')
+        }
+      })
+    })
+    .catch(function (error) {
+      console.log('Error updating user:', error)
+      res.status(500).send(error)
+    })
 })
 
 // 4. delete user
@@ -86,12 +112,12 @@ app.delete('/users/:uid', (req, res) => {
     .then(function () {
       currentUserRef.remove().then(function () {
         console.log('uid: ' + req.params.uid + ' succcessfully deleted')
-        res.send('uid: ' + req.params.uid + ' succcessfully deleted')
+        res.status(200).send('User succcessfully deleted')
       })
     })
     .catch(function (error) {
       console.log('Error deleting user:' + error)
-      res.send('Error deleting user:' + error)
+      res.status(500).send('Error deleting user')
     })
 })
 
