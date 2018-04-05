@@ -16,7 +16,7 @@ admin.initializeApp({
   databaseURL: 'https://foodwastereduction-6ca48.firebaseio.com'
 })
 
-var users = null
+// var users = null
 
 // Firebase
 // Get a database reference to our posts
@@ -24,6 +24,7 @@ var db = admin.database()
 
 var usersRef = db.ref('users')
 
+/*
 // Attach an asynchronous callback to read the data at our posts reference
 usersRef.on('value', function (snapshot) {
   console.log(snapshot.val())
@@ -31,93 +32,143 @@ usersRef.on('value', function (snapshot) {
 }, function (errorObject) {
   console.log('The read failed: ' + errorObject.code)
 })
+*/
 
 // HTTP Endpoints
+/*
+// Not used
 // 1. get users
-app.get('/users', (req, res) => {
+app.get('/v1/users', (req, res) => {
   res.send({
     users: users
   })
 })
+*/
 
 // 2. add user
-app.post('/users', (req, res) => {
-  console.log(req.body.email)
+app.post('/v1/users', (req, res) => {
+  // Check authentication and authorization
+  admin.auth().verifyIdToken(req.body.idToken)
+    .then(function (decodedToken) {
+      // Get the user id
+      var uid = decodedToken.uid
 
-  console.log(req.body.token)
+      // Look up requesting user
+      var requestingUserRef = usersRef.child(uid)
 
-  admin.auth().createUser({
-    email: req.body.email,
-    password: req.body.password
-  })
-    .then(function (userRecord) {
-      // Add user to database
-      usersRef.child(userRecord.uid).set({
+      // Check user privileges
+      if (requestingUserRef.child('privileges') !== admin) {
+        res.set(403)
+      }
+
+      admin.auth().createUser({
         email: req.body.email,
-        privileges: req.body.privileges
+        password: req.body.password
       })
+        .then(function (userRecord) {
+          // Add user to database
+          usersRef.child(userRecord.uid).set({
+            email: req.body.email,
+            privileges: req.body.privileges
+          })
 
-      console.log('Successfully created new user:' + userRecord.uid)
-      res.status(200).send('Successfully adder new user')
-    })
-    .catch(function (error) {
-      console.log('Error creating new user:' + error)
-      res.status(500).send('Error creating new user')
+          console.log('Successfully created new user:' + userRecord.uid)
+          res.status(200).send('Successfully adder new user')
+        })
+        .catch(function (error) {
+          console.log('Error creating new user:' + error)
+          res.status(500).send('Error creating new user')
+        })
+        .catch(function (error) {
+          console.log('Error updating user:', error)
+          res.send('errrrorrr')
+        })
+    }).catch(function (error) {
+      console.log(error)
+      res.send(403)
     })
 })
 
 // 3. update user (email and privileges)
-app.patch('/users/:uid', (req, res) => {
-  /*
-  console.log('ID TOKEN: ' + req.body.idToken)
-
+app.patch('/v1/users/:uid', (req, res) => {
+  // Check authentication and authorization
   admin.auth().verifyIdToken(req.body.idToken)
     .then(function (decodedToken) {
+      // Get the user id
       var uid = decodedToken.uid
-      console.log('User id: ' + uid)
-    }).catch(function (error) {
-      res.status(500).send(error)
-    })
-  */
-  var currentUserRef = usersRef.child(req.params.uid)
-  admin.auth().updateUser(req.params.uid, {
-    email: req.body.email
-  })
-    .then(function (userRecord) {
-      currentUserRef.update({
-        'email': req.body.email,
-        'privileges': req.body.privileges
-      }, function (error) {
-        if (error) {
-          console.log('User privileges not updated: ' + error)
-          res.status(500).send('User privileges not updated')
-        } else {
-          // See the UserRecord reference doc for the contents of userRecord.
-          console.log('Successfully updated user', userRecord.toJSON())
-          res.status(200).send('Successfully updated user')
-        }
+
+      // Look up requesting user
+      var requestingUserRef = usersRef.child(uid)
+
+      // Check user privileges
+      if (requestingUserRef.child('privileges') !== admin) {
+        res.set(403)
+      }
+
+      // Look up user to update
+      var currentUserRef = usersRef.child(req.params.uid)
+
+      admin.auth().updateUser(req.params.uid, {
+        email: req.body.email
       })
-    })
-    .catch(function (error) {
-      console.log('Error updating user:', error)
-      res.status(500).send(error)
+        .then(function (userRecord) {
+          currentUserRef.update({
+            'email': req.body.email,
+            'privileges': req.body.privileges
+          }, function (error) {
+            if (error) {
+              console.log('User privileges not updated: ' + error)
+              res.send('User privileges not updated')
+            } else {
+              // See the UserRecord reference doc for the contents of userRecord.
+              console.log('Successfully updated user', userRecord.toJSON())
+              res.status(200).send('Successfully updated user')
+            }
+          })
+        })
+        .catch(function (error) {
+          console.log('Error updating user:', error)
+          res.send('errrrorrr')
+        })
+    }).catch(function (error) {
+      console.log(error)
+      res.send(403)
     })
 })
 
 // 4. delete user
-app.delete('/users/:uid', (req, res) => {
-  var currentUserRef = usersRef.child(req.params.uid)
+app.delete('/v1/users/:uid', (req, res) => {
+  console.log('ID TOKEN', req.body.idToken)
+  // Check authentication and authorization
+  admin.auth().verifyIdToken(req.body.idToken)
+    .then(function (decodedToken) {
+      // Get the user id
+      var uid = decodedToken.uid
 
-  admin.auth().deleteUser(req.params.uid)
-    .then(function () {
-      currentUserRef.remove().then(function () {
-        console.log('uid: ' + req.params.uid + ' succcessfully deleted')
-        res.status(200).send('User succcessfully deleted')
-      })
-    })
-    .catch(function (error) {
-      console.log('Error deleting user:' + error)
-      res.status(500).send('Error deleting user')
+      // Look up requesting user
+      var requestingUserRef = usersRef.child(uid)
+
+      // Check user privileges
+      if (requestingUserRef.child('privileges') !== admin) {
+        res.set(403)
+      }
+
+      var currentUserRef = usersRef.child(req.params.uid)
+
+      admin.auth().deleteUser(req.params.uid)
+        .then(function () {
+          currentUserRef.remove().then(function () {
+            console.log('uid: ' + req.params.uid + ' succcessfully deleted')
+            res.status(200).type('json').send('{}')
+          })
+        })
+        .catch(function (error) {
+          console.log('Error deleting user:' + error)
+          res.status(500).send('Error deleting user')
+        })
+    }).catch(function (error) {
+      console.log(error)
+      res.send(403)
     })
 })
 
