@@ -5,7 +5,10 @@ const morgan = require('morgan')
 
 const app = express()
 app.use(morgan('combined')) // for printing out logs
-app.use(bodyParser.json()) // allow the app to easily parse json requsts
+// allow the app to easily parse json requsts
+app.use(bodyParser.urlencoded({
+  extended: true
+}))
 app.use(cors()) // allow any client to access this server (security risk)
 
 var admin = require('firebase-admin')
@@ -48,7 +51,7 @@ app.get('/v1/users', (req, res) => {
 // 2. add user
 app.post('/v1/users', (req, res) => {
   // Check authentication and authorization
-  admin.auth().verifyIdToken(req.body.idToken)
+  admin.auth().verifyIdToken(req.query.idToken)
     .then(function (decodedToken) {
       // Get the user id
       var uid = decodedToken.uid
@@ -90,9 +93,10 @@ app.post('/v1/users', (req, res) => {
 })
 
 // 3. update user (email and privileges)
-app.patch('/v1/users/:uid', (req, res) => {
+app.patch('/v1/users', (req, res) => {
+  // console.log('IDTOOOOKEN', req.query.idToken)
   // Check authentication and authorization
-  admin.auth().verifyIdToken(req.body.idToken)
+  admin.auth().verifyIdToken(req.query.idToken)
     .then(function (decodedToken) {
       // Get the user id
       var uid = decodedToken.uid
@@ -138,9 +142,9 @@ app.patch('/v1/users/:uid', (req, res) => {
 
 // 4. delete user
 app.delete('/v1/users/:uid', (req, res) => {
-  console.log('ID TOKEN', req.body.idToken)
+  console.log('ID TOKEN', req.query.idToken)
   // Check authentication and authorization
-  admin.auth().verifyIdToken(req.body.idToken)
+  admin.auth().verifyIdToken(req.query.idToken)
     .then(function (decodedToken) {
       // Get the user id
       var uid = decodedToken.uid
