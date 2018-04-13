@@ -72,17 +72,20 @@ app.post('/v1/users', (req, res) => {
             email: req.body.email,
             privileges: req.body.privileges
           })
-
           console.log('Successfully created new user:' + userRecord.uid)
           res.status(200).send('Successfully adder new user')
         })
         .catch(function (error) {
-          console.log('Error creating new user:' + error)
-          res.status(500).send('Error creating new user')
+          console.log('Error creating new user:' + error.code)
+
+          if (error.code === 'auth/email-already-exists') {
+            res.send(409)
+          }
+          res.status(409).send('Error creating new user')
         })
         .catch(function (error) {
           console.log('Error updating user:', error)
-          res.send('errrrorrr')
+          res.send('erorr')
         })
     }).catch(function (error) {
       console.log(error)
