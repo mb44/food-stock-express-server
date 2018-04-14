@@ -1,12 +1,10 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const morgan = require('morgan')
 
 const app = express()
-app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-})
+app.use(morgan('combined')) // for printing out logs
 // allow the app to easily parse json requsts
 app.use(bodyParser.json())
 app.use(cors()) // allow any client to access this server (security risk)
@@ -19,36 +17,20 @@ admin.initializeApp({
   databaseURL: 'https://foodwastereduction-6ca48.firebaseio.com'
 })
 
-// var users = null
-
 // Firebase
 // Get a database reference to our posts
 var db = admin.database()
 
 var usersRef = db.ref('users')
 
-/*
-// Attach an asynchronous callback to read the data at our posts reference
-usersRef.on('value', function (snapshot) {
-  console.log(snapshot.val())
-  users = snapshot.val()
-}, function (errorObject) {
-  console.log('The read failed: ' + errorObject.code)
-})
-*/
+app.all('/', function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With')
+  next()
+ })
 
-// HTTP Endpoints
-/*
-// Not used
-// 1. get users
-app.get('/v1/users', (req, res) => {
-  res.send({
-    users: users
-  })
-})
-*/
 
-// 2. add user
+// 1. add user
 app.post('/v1/users', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
@@ -95,7 +77,7 @@ app.post('/v1/users', (req, res) => {
     })
 })
 
-// 3. update user (email and privileges)
+// 2. update user (email and privileges)
 app.patch('/v1/users/:uid', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
@@ -142,7 +124,7 @@ app.patch('/v1/users/:uid', (req, res) => {
     })
 })
 
-// 4. delete user
+// 3. delete user
 app.delete('/v1/users/:uid', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
