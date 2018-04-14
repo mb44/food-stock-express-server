@@ -4,7 +4,10 @@ const cors = require('cors')
 const morgan = require('morgan')
 
 const app = express()
-app.use(morgan('combined')) // for printing out logs
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+})
 // allow the app to easily parse json requsts
 app.use(bodyParser.json())
 app.use(cors()) // allow any client to access this server (security risk)
