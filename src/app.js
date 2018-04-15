@@ -23,12 +23,6 @@ var db = admin.database()
 
 var usersRef = db.ref('users')
 
-app.all('/', function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'Origin')
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Accept')
-  next()
-})
-
 // 1. add user
 app.post('/v1/users', (req, res) => {
   // Check authentication and authorization
