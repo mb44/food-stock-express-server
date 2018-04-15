@@ -158,4 +158,7 @@ app.delete('/v1/users/:uid', (req, res) => {
     })
 })
 
-app.listen(process.env.PORT || 8081)
+var port = 8081
+app.listen(port, function () {
+  console.log('Server running on port ' + port)
+})
