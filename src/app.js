@@ -59,11 +59,11 @@ app.post('/v1/users', (req, res) => {
           if (error.code === 'auth/email-already-exists') {
             res.send(409)
           }
-          res.status(409).send('Error creating new user')
+          res.send(500)
         })
         .catch(function (error) {
           console.log('Error updating user:', error)
-          res.send('erorr')
+          res.send('error')
         })
     }).catch(function (error) {
       console.log(error)
@@ -110,7 +110,7 @@ app.patch('/v1/users/:uid', (req, res) => {
         })
         .catch(function (error) {
           console.log('Error updating user:', error)
-          res.send('errrrorrr')
+          res.send(500)
         })
     }).catch(function (error) {
       console.log(error)
@@ -140,12 +140,12 @@ app.delete('/v1/users/:uid', (req, res) => {
         .then(function () {
           currentUserRef.remove().then(function () {
             console.log('uid: ' + req.params.uid + ' succcessfully deleted')
-            res.status(200).type('json').send('{}')
+            res.send(200)
           })
         })
         .catch(function (error) {
           console.log('Error deleting user:' + error)
-          res.status(500).send('Error deleting user')
+          res.send(500)
         })
     }).catch(function (error) {
       console.log(error)
