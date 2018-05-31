@@ -1,8 +1,13 @@
+/** @file This file is source code for the webservice. The webservice uses Express.js. 
+ * @author Lars La Cour & Morten Fyhn Beuchert
+*/
+
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 
+/** Express.js is used as server */
 const app = express()
 
 app.use(morgan('combined')) // for printing out logs
@@ -13,6 +18,7 @@ app.use(cors()) // allow any client to access this server (security risk)
 var admin = require('firebase-admin')
 var serviceAccount = require('../serviceAccountKey.json')
 
+/** This function initialises the Firebase Admin SDK */
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://foodwastereduction-6ca48.firebaseio.com'
@@ -22,9 +28,13 @@ admin.initializeApp({
 // Get a database reference to our posts
 var db = admin.database()
 
+/** Get a reference to the 'users' in the database. The object is realtime updated as the database changes
+ * @param {string} req - contains an idToken which is part of the query string as well as an HTTP body containg information
+ * about the user to add
+ */
 var usersRef = db.ref('users')
 
-// 1. add user
+/** Endpoint for adding a user. Uses the HTTP POST method. */
 app.post('/v1/users', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
@@ -71,7 +81,7 @@ app.post('/v1/users', (req, res) => {
     })
 })
 
-// 2. update user (email and privileges)
+/** Endpoint for updating a user (email and privileges). Uses the HTTP PATCH method. */
 app.patch('/v1/users/:uid', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
@@ -118,7 +128,7 @@ app.patch('/v1/users/:uid', (req, res) => {
     })
 })
 
-// 3. delete user
+/** Endpoint for deleting a user (email and privileges). Uses the HTTP DELETE method. */
 app.delete('/v1/users/:uid', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
