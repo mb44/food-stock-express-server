@@ -9,11 +9,12 @@ const morgan = require('morgan')
 
 /** Express.js is used as server */
 const app = express()
-
-app.use(morgan('combined')) // for printing out logs
+// for printing out logs
+app.use(morgan('combined')) 
 // allow the app to easily parse json requsts
 app.use(bodyParser.json())
-app.use(cors()) // allow any client to access this server (security risk)
+// allow any client to access this server (security risk)
+app.use(cors()) 
 
 var admin = require('firebase-admin')
 var serviceAccount = require('../serviceAccountKey.json')
@@ -24,17 +25,16 @@ admin.initializeApp({
   databaseURL: 'https://foodwastereduction-6ca48.firebaseio.com'
 })
 
-// Firebase
-// Get a database reference to our posts
+/** Get a Firebase database reference */
 var db = admin.database()
 
-/** Get a reference to the 'users' in the database. The object is realtime updated as the database changes
- * @param {string} req - contains an idToken which is part of the query string as well as an HTTP body containg information
- * about the user to add
- */
+/** Get a reference to the 'users' in the database. The object is realtime updated as the database changes */
 var usersRef = db.ref('users')
 
-/** @description Endpoint for adding a user. Uses the HTTP POST method. */
+/** @description Endpoint for adding a user. Uses the HTTP POST method.
+ *  req - contains an idToken which is part of the query string as well as an HTTP body containg information
+ *  about the user to add
+ */
 app.post('/v1/users', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
@@ -81,7 +81,10 @@ app.post('/v1/users', (req, res) => {
     })
 })
 
-/** Endpoint for updating a user (email and privileges). Uses the HTTP PATCH method. */
+/** Endpoint for updating a user (email and privileges). Uses the HTTP PATCH method.
+ *  req - contains an idToken which is part of the query string as well as an HTTP body containg information
+ *  about the updated user
+ */
 app.patch('/v1/users/:uid', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
@@ -128,7 +131,10 @@ app.patch('/v1/users/:uid', (req, res) => {
     })
 })
 
-/** Endpoint for deleting a user (email and privileges). Uses the HTTP DELETE method. */
+/** Endpoint for deleting a user (email and privileges). Uses the HTTP DELETE method.
+ *  req - contains an idToken which is part of the query string as well as an HTTP body containg information
+ *  about the user to delete
+ */
 app.delete('/v1/users/:uid', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
