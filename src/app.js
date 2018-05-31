@@ -34,7 +34,7 @@ var db = admin.database()
  */
 var usersRef = db.ref('users')
 
-/** Endpoint for adding a user. Uses the HTTP POST method. */
+/** @description Endpoint for adding a user. Uses the HTTP POST method. */
 app.post('/v1/users', (req, res) => {
   // Check authentication and authorization
   admin.auth().verifyIdToken(req.query.auth)
