@@ -25,6 +25,7 @@
     "eslint": "^4.19.1",
     "express": "^4.16.3",
     "firebase-admin": "^5.11.0",
+    "jsdoc": "^3.5.5",
     "morgan": "^1.9.0",
     "nodemon": "^1.17.3"
   },
