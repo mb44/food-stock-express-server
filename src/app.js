@@ -1,5 +1,5 @@
 /** @file This file is source code for the webservice. The webservice uses Express.js. 
- * @author Lars La Cour & Morten Fyhn Beuchert
+ * @author Morten Fyhn Beuchert
 */
 
 const express = require('express')
