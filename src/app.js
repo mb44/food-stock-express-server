@@ -46,7 +46,7 @@ app.post('/v1/users', (req, res) => {
       var requestingUserRef = usersRef.child(uid)
 
       // Check user privileges
-      if (requestingUserRef.child('privileges') !== admin) {
+      if (requestingUserRef.child('privileges') !== 'admin') {
         res.set(403)
       }
 
@@ -96,7 +96,7 @@ app.patch('/v1/users/:uid', (req, res) => {
       var requestingUserRef = usersRef.child(uid)
 
       // Check user privileges
-      if (requestingUserRef.child('privileges') !== admin) {
+      if (requestingUserRef.child('privileges') !== 'admin') {
         res.set(403)
       }
 
@@ -146,7 +146,7 @@ app.delete('/v1/users/:uid', (req, res) => {
       var requestingUserRef = usersRef.child(uid)
 
       // Check user privileges
-      if (requestingUserRef.child('privileges') !== admin) {
+      if (requestingUserRef.child('privileges') !== 'admin') {
         res.set(403)
       }
 
